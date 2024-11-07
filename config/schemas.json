@@ -1,0 +1,27 @@
+[
+  {
+    "name": "data",
+    "database_name": "tutorial_demo_db",
+    "comment": "schema to hold all data"
+  },
+  {
+    "name": "i_stages",
+    "database_name": "tutorial_demo_db",
+    "comment": "schema to hold all internal stages"
+  },
+  {
+    "name": "e_stages",
+    "database_name": "tutorial_demo_db",
+    "comment": "schema to hold all external stages"
+  },
+  {
+    "name": "notebooks",
+    "database_name": "tutorial_demo_db",
+    "comment": "schema to hold all Snowflake Notebooks"
+  },
+  {
+    "name": "data",
+    "database_name": "todo_app",
+    "comment": "schema to hold all data for TODO application"
+  }
+]

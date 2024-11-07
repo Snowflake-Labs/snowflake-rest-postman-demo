@@ -1,0 +1,278 @@
+{
+	"info": {
+		"_postman_id": "7704bd60-9173-4bac-b15d-ac7ce559bdd5",
+		"name": "Snowflake-Tutorial-Roles",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39411248"
+	},
+	"item": [
+		{
+			"name": "Create Role",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Roles\", function () {",
+							"    const wants = [",
+							"    `${pm.variables.get(\"name\").toUpperCase()} already exists, statement succeeded.`,",
+							"    `Role ${pm.variables.get(\"name\").toUpperCase()} successfully created.`",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Roles\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"    pm.variables.set(\"comment\", pm.iterationData.get(\"comment\")?pm.iterationData.get(\"comment\"):\"no comments\")",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{name}}\",\n    \"comment\": \"{{comment}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/roles?createMode=ifNotExists",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"roles"
+					],
+					"query": [
+						{
+							"key": "createMode",
+							"value": "ifNotExists"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Grant on Role",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Roles\", function () {",
+							"    const want = \"Statement executed successfully.\"",
+							"    console.log(\"Want Statuses\",want);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.eql(want,`Expected one of ${want} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Grant Role To User\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"role_name\"))",
+							"    pm.variables.set(\"grant\", JSON.stringify(pm.iterationData.get(\"grant\")))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{grant}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/users/{{name}}/grants",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"users",
+						"{{name}}",
+						"grants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Grant Role To User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Grant Role To User\", function () {",
+							"    const want = \"Statement executed successfully.\"",
+							"    console.log(\"Want Statuses\",want);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.eql(want,`Expected one of ${want} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Grant Role To User\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"role_name\"))",
+							"    pm.variables.set(\"grant\", JSON.stringify(pm.iterationData.get(\"grant\")))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{grant}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/users/{{snowflake_username}}/grants",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"users",
+						"{{snowflake_username}}",
+						"grants"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "name": "tutorial_demo_db",
+    "comment": "Demo DB used with the Snowflake Postman REST API Demo"
+  },
+  {
+    "name": "todo_app"
+  }
+]

@@ -1,0 +1,389 @@
+{
+	"info": {
+		"_postman_id": "ae81bea7-63ad-4064-b64d-f4609dc05eac",
+		"name": "Snowflake-Tutorial-Databases",
+		"description": "# Snowflake Databases\n\nShows few examples on how to work with Snowflake API using Snowflake REST API. For other examples and request/request parameters refer to [Database API Reference](https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference/database).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39411248"
+	},
+	"item": [
+		{
+			"name": "Create or Alter Databases",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Databases\",() =>{",
+							"    pm.variables.set(\"db_kind\",pm.iterationData.get(\"kind\")?pm.iterationData.get(\"kind\").toUpperCase():\"PERMANENT\")",
+							"    pm.variables.set(\"db_name\",pm.iterationData.get(\"name\"))",
+							"    pm.variables.set(\"db_comment\", pm.iterationData.get(\"comment\")?pm.iterationData.get(\"comment\"):\"no comments\")",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Databases\", function () {",
+							"    const wants = [",
+							"    `${pm.variables.get(\"name\").toUpperCase()} already exists, statement succeeded.`,",
+							"    `Database ${pm.variables.get(\"name\").toUpperCase()} successfully created.`,",
+							"    \"Statement executed successfully.\"",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{db_name}}\",\n    \"kind\": \"{{db_kind}}\",\n    \"comment\": \"{{db_comment}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/databases/{{db_name}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"databases",
+						"{{db_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Databases",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Databases\",() =>{",
+							"    pm.variables.set(\"db_name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Fixed the syntax error in accessing the array",
+							"pm.test(\"Get Databases\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    const db_name = pm.variables.get(\"db_name\")",
+							"    // console.log(\"DB NAME:\",db_name)",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(responseJson.length).to.be.gte(0);",
+							"    responseJson.forEach((wh) => {",
+							"        pm.expect(wh.name.toLowerCase()).to.be.eq(db_name)",
+							"    })",
+							"})",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/databases?like={{db_name}}%25",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"databases"
+					],
+					"query": [
+						{
+							"key": "like",
+							"value": "{{db_name}}%25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Drop Databases",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Drop Database\",() =>{",
+							"    pm.variables.set(\"db_name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Drop Databases\", function () {",
+							"    const db_name = pm.variables.get(\"name\").toUpperCase()",
+							"    const wants = [",
+							"    `${db_name} successfully dropped.`,",
+							"    `Drop statement executed successfully (${db_name} already dropped).`",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/databases/{{db_name}}?ifExists=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"databases",
+						"{{db_name}}"
+					],
+					"query": [
+						{
+							"key": "ifExists",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Undrop Databases",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Undrop Database\",() =>{",
+							"    pm.variables.set(\"db_name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Undrop Databases\", function () {",
+							"    const db_name = pm.variables.get(\"name\").toUpperCase()",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    ",
+							"    const responseCode = responseJson.code? responseJson.code:\"\"",
+							"    console.log(\"RESPONSE CODE:\",responseCode)",
+							"    const responseMessage = responseJson.message? responseJson.message:\"\"",
+							"    console.log(\"RESPONSE Message:\",responseMessage)",
+							"    if(responseCode&&responseMessage){",
+							"      pm.expect(responseCode).to.be.eql(\"090025\")",
+							"      pm.expect(responseMessage).to.be.eql(`database ${db_name.toLowerCase()} did not exist or was purged.`)",
+							"    }else{",
+							"    const wants = [",
+							"    `Database ${db_name} successfully restored.`,",
+							"    `Drop statement executed successfully (${db_name} already dropped).`",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"    }",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/databases/{{db_name}}:undrop",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"databases",
+						"{{db_name}}:undrop"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

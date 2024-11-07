@@ -1,0 +1,42 @@
+[
+  {
+    "role_name": "tutorial_admin",
+    "grant": {
+      "securable": {
+        "name": "tutorial_demo_db"
+      },
+      "securable_type": "database",
+      "grant_option": true,
+      "privileges": [
+        "ownership"
+      ]
+    }
+  },
+  {
+    "role_name": "tutorial_admin",
+    "grant": {
+      "securable": {
+        "name": "data",
+        "database": "tutorial_demo_db"
+      },
+      "securable_type": "schema",
+      "privileges": [
+        "ownership"
+      ]
+    }
+  },
+  {
+    "role_name": "tutorial_admin",
+    "grant": {
+      "securable": {
+        "name": "customers",
+        "database": "tutorial_demo_db",
+        "schema": "data"
+      },
+      "securable_type": "table",
+      "privileges": [
+        "ownership"
+      ]
+    }
+  }
+]

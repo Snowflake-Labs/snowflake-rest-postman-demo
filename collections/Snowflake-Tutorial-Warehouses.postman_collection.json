@@ -1,0 +1,530 @@
+{
+	"info": {
+		"_postman_id": "8fac53db-0e0e-47dc-ad4e-f845869f1663",
+		"name": "Snowflake-Tutorial-Warehouses",
+		"description": "Snowflake REST API Demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39411248"
+	},
+	"item": [
+		{
+			"name": "Create or Alter Warehouses",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Warehouse\", function () {",
+							"    const wants = [",
+							"    `${pm.variables.get(\"name\").toUpperCase()} already exists, statement succeeded.`,",
+							"    `Warehouse ${pm.variables.get(\"name\").toUpperCase()} successfully created.`,",
+							"    \"Statement executed successfully.\"",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Warehouses\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"    pm.variables.set(\"warehouse_size\", pm.iterationData.get(\"warehouse_size\")?pm.iterationData.get(\"warehouse_size\"):\"xsmall\")",
+							"    pm.variables.set(\"warehouse_type\",pm.iterationData.get(\"warehouse_type\")?pm.iterationData.get(\"warehouse_type\"):\"standard\")",
+							"    pm.variables.set(\"auto_suspend\",pm.iterationData.get(\"auto_suspend\")?pm.iterationData.get(\"auto_suspend\"):300)",
+							"    pm.variables.set(\"auto_resume\",pm.iterationData.get(\"auto_resume\")?pm.iterationData.get(\"auto_resume\"):false)",
+							"    pm.variables.set(\"initially_suspended\",pm.iterationData.get(\"initially_suspended\")?pm.iterationData.get(\"initially_suspended\"):false)",
+							"    pm.variables.set(\"comment\", pm.iterationData.get(\"comment\")?pm.iterationData.get(\"comment\"):\"no comments\")",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{name}}\",\n    \"warehouse_size\": \"{{warehouse_size}}\",\n    \"warehouse_type\": \"{{warehouse_type}}\",\n    \"auto_suspend\": {{auto_suspend}},\n    \"auto_resume\": {{auto_resume}},\n    \"initially_suspended\": {{initially_suspended}},\n    \"comment\": \"{{comment}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v2/warehouses/{{name}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"warehouses",
+						"{{name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Warehouses",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Fixed the syntax error in accessing the array",
+							"pm.test(\"Get Warehouses\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    const whName = pm.variables.get(\"name\").toUpperCase()",
+							"    const whType = pm.variables.get(\"warehouse_type\")?pm.variables.get(\"warehouse_type\"):\"STANDARD\"",
+							"    const whState = pm.variables.get(\"initially_suspended\")?pm.variables.get(\"initially_suspended\"):false",
+							"",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(responseJson.length).to.be.eq(1);",
+							"    responseJson.forEach((wh) => {",
+							"        pm.expect(wh.name).to.be.eq(whName)",
+							"        pm.expect(wh.warehouse_type).to.be.eq(whType.toUpperCase())",
+							"        pm.expect(wh.state).to.be.eq(whState?\"SUSPENDED\":\"STARTED\")",
+							"    })",
+							"})",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Warehouses\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"    pm.variables.set(\"initially_suspended\",pm.iterationData.get(\"initially_suspended\")?pm.iterationData.get(\"initially_suspended\"):false)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "KEYPAIR_JWT",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v2/warehouses?like={{name}}%25",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"warehouses"
+					],
+					"query": [
+						{
+							"key": "fromName",
+							"value": "kamesh",
+							"disabled": true
+						},
+						{
+							"key": "startWith",
+							"value": "kamesh",
+							"disabled": true
+						},
+						{
+							"key": "endWith",
+							"value": "demo",
+							"disabled": true
+						},
+						{
+							"key": "like",
+							"value": "{{name}}%25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Warehouses",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete Warehouse\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete Warehouse\", function () {",
+							"    const want = `${pm.variables.get(\"name\").toUpperCase()} successfully dropped.`",
+							"    console.log(\"Expected Status\",want);",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Actual status:\",got)",
+							"    pm.expect(got).to.be.eql(want,`Expected '${want}' but got '${got}'`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v2/warehouses/{{name}}?ifExists=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"warehouses",
+						"{{name}}"
+					],
+					"query": [
+						{
+							"key": "ifExists",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Undrop Warehouses",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Undrop Warehouse\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Undrop Warehouses\", function () {",
+							"    const warehouseName = pm.variables.get(\"name\").toUpperCase()",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    ",
+							"    const responseCode = responseJson.code? responseJson.code:\"\"",
+							"    console.log(\"RESPONSE CODE:\",responseCode)",
+							"    const responseMessage = responseJson.message? responseJson.message:\"\"",
+							"    console.log(\"RESPONSE Message:\",responseMessage)",
+							"    if(responseCode&&responseMessage){",
+							"      pm.expect(responseCode).to.be.eql(\"090025\")",
+							"      pm.expect(responseMessage).to.be.eql(`schema ${warehouseName.toLowerCase()} did not exist or was purged.`)",
+							"    }else{",
+							"    const wants = [",
+							"    `Warehouse ${warehouseName} successfully restored.`",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"    }",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v2/warehouses/{{name}}:undrop",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"warehouses",
+						"{{name}}:undrop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Suspend Warehouse",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Suspend Warehouses\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Suspend Warehouses\", function () {",
+							"    const warehouseName = pm.variables.get(\"name\")",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    const responseCode = responseJson.code? responseJson.code:\"\"",
+							"    console.log(\"RESPONSE CODE:\",responseCode)",
+							"    const responseMessage = responseJson.message? responseJson.message:\"\"",
+							"    console.log(\"RESPONSE Message:\",responseMessage)",
+							"    if(responseCode&&responseMessage){",
+							"      pm.expect(responseCode).to.be.eql(\"090064\",`Expecting '090064' but got '${responseCode}'`)",
+							"      pm.expect(responseMessage).to.be.eql(`invalid state. warehouse '${warehouseName}' cannot be suspended.`,`Expecting 'invalid state. warehouse '${warehouseName}' cannot be suspended.' but got '${responseMessage}'`)",
+							"    }else{",
+							"        const wants = [",
+							"          \"Statement executed successfully.\"",
+							"        ]",
+							"        console.log(\"Want Statuses\",wants);",
+							"        pm.response.to.have.status(200);",
+							"        pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"        const got = responseJson.status",
+							"        console.log(\"Got status:\",got)",
+							"        pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"    }",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v2/warehouses/{{name}}:suspend",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"warehouses",
+						"{{name}}:suspend"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resume Warehouse",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.test(\"Resume Warehouses\",() =>{",
+							"    pm.variables.set(\"name\",pm.iterationData.get(\"name\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Resume Warehouses\", function () {",
+							"    const warehouseName = pm.variables.get(\"name\")",
+							"    const responseJson = pm.response.json();",
+							"    console.log(\"Response JSON:\",responseJson);",
+							"    const wants = [",
+							"    `Statement executed successfully.`",
+							"    ]",
+							"    console.log(\"Want Statuses\",wants);",
+							"    pm.response.to.have.status(200);",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"    const got = responseJson.status",
+							"    console.log(\"Got status:\",got)",
+							"    pm.expect(got).to.be.oneOf(wants,`Expected one of ${wants} but got {got}`);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{snowflake_jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-snowflake-authorization-token-type",
+						"value": "{{snowflake_auth_type}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v2/warehouses/{{name}}:resume",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"warehouses",
+						"{{name}}:resume"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

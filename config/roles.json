@@ -1,0 +1,13 @@
+[
+  {
+    "name": "tutorial_admin",
+    "comment": "the tutorial db admin"
+  },
+  {
+    "name": "tutorial_analyst",
+    "comment": "the tutorial application analyst"
+  },
+  {
+    "name": "tutorial_developer"
+  }
+]
