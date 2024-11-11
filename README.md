@@ -2,11 +2,19 @@
 
 The demo companion code for [Snowflake REST API](https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/snowflake-rest-api) demo with [Postman](https://postman.com).
 
+As part of this demo we will cover few APIs:
+
+- [x] Warehouses
+- [x] Tables
+- [x] Roles
+- [x] Grants
+- [x] Users
+
 ## Pre-requisites
 
-- Postman and basic knowledge to work with Postman
-- Snowflake Account
-- Snow CLI
+- Postman [basic knowledge](https://learning.postman.com/docs/getting-started/overview/)
+- [Snowflake Tiral Account](https://signup.snowflake.com/)
+- [Snow CLI](https://docs.snowflake.com/en/developer-guide/snowflake-cli/index)
 
 ## Demo Sources
 
@@ -83,3 +91,12 @@ All requests are configured to have the following headers,
 ## Running Collections
 
 Now you are all set to run the collections using Postman. For demonstration purpose there is some data that you can use API inside [config](./config/) folder. Please check <https://learning.postman.com/docs/collections/running-collections/working-with-data-files/> to see how to use the data with Postman.
+
+There are few SQL statements in [check.sql](./check.sql) that you can try before and after the collection run to make sure all works.
+
+## References
+
+- Snowflake trial sign-up at <https://signup.snowflake.com/>
+- Demo sources used in this tutorial at <https://github.com/Snowflake-Labs/snowflake-rest-postman-demo>
+- Snowflake REST API Reference Documentation <https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/snowflake-rest-api>
+- Snowflake Postman Public Workspace at <https://postman.com/snowflake/snowflake-public-workspace/collection/ot7drnh/snowflake-role-api>

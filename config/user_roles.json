@@ -1,6 +1,5 @@
 [
   {
-    "role_name": "tutorial_admin",
     "grant": {
       "securable": {
         "name": "tutorial_admin"
